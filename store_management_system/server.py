@@ -47,7 +47,9 @@ def signup_successful():
     if is_present:
         return render_template('user_already_present.html')
     else:
-        insert_owner_into_db(data)
+        checker = insert_owner_into_db(data)
+        if not checker:
+            return "<h1>User already exists</h1>"
         return render_template('signup_successful.html',
                                signup_details=data)
 
