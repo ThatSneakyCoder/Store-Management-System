@@ -34,8 +34,8 @@
         <div class="container-fluid px-4">
             <div class="row my-1">
                 <div style="display: flex; justify-content: flex-start;">
-                    <h3 class="fs-3 pt-1">Add Employee: </h3>
-                    <form class="d-flex m-1 mb-2" role="search" action="/{{ details['owner_id'] }}/{{ details['name'] }}/add_loc" method="post">
+                    <h3 class="fs-3 pt-1" style="color: yellow;">Add Employee: </h3>
+                    <form class="d-flex m-1 mb-2" role="search" action="/{{ details['owner_id'] }}/{{ details['name'] }}/add_employee" method="post">
                         <input class="form-control me-2" type="text" name="emp-name" placeholder="Employee Name" aria-label="Enter employee name">
                         <input class="form-control me-2" type="text" name="emp-post" placeholder="Employee Post" aria-label="Enter employee post">
                         <input class="form-control me-2" type="number" name="emp-salary" placeholder="Employee Salary" aria-label="Enter employee salary">
@@ -63,7 +63,7 @@
                                 <td>{{ emp['post'] }}</td>
                                 <td>${{ emp['salary'] }}</td>
                                 <td>
-                                    <button type="button" class="btn btn-danger">Delete</button>
+                                    <button type="button" class="btn btn-danger delete-button" data-id="{{ emp['id'] }}">Delete</button>
                                 </td>
                             </tr>
                             {% endfor %}
@@ -77,5 +77,30 @@
     </div>
     </div>
 <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js')  }}"></script>
+<script src="{{ url_for('static', filename='js/jquery-3.6.0.min.js')  }}"></script>
+<script>
+$(document).ready(function(){
+    $(".delete-button").click(function(){
+        var emp_id = $(this).data("id");
+        var row = $(this).closest("tr");
+        var owner_id = "{{ details['owner_id'] }}";
+        var owner_name = "{{ details['name'] }}";
+        
+        $.ajax({
+            url: `/${owner_id}/${owner_name}/delete_employee/${emp_id}`,
+            type: "POST",
+            success: function(response){
+                if(response.status === "success"){
+                    row.remove();
+                }
+            }
+        });
+    });
+});
+</script>
+
+    {% if message %}
+    <script>alert("{{ message }}");</script>
+    {% endif %}
 </body>
 </html>

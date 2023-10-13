@@ -31,19 +31,18 @@
                       </div>
             </div>
         </nav>
-    <h1>
-        {% for order in order_data %}
-        Order ID: {{ order['order_id'] }}
-        <br>
-        Products:
-        <ul>
-                {% for prod in order['products'] %}
-                <li>{{ prod['prod_id'] }} - {{ prod['prod_name'] }}</li>
-                {% endfor %}
-        </ul>
-        <br>
-        {% endfor %}
-    </h1>
+        <div class="container-fluid px-4">
+            <div class="row row-cols-1 row-cols-md-4 g-4">
+                {% include 'product_card.html' %}
+                {% include 'product_card.html' %}
+                {% include 'product_card.html' %}
+                {% include 'product_card.html' %}
+                {% include 'product_card.html' %}
+                {% include 'product_card.html' %}
+                {% include 'product_card.html' %}
+                {% include 'product_card.html' %}
+            </div>
+        </div>
     </div>
     </div>
 <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js')  }}"></script>

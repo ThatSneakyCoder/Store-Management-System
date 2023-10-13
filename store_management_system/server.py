@@ -1,6 +1,7 @@
 import os
-from flask import Flask, render_template, request, redirect, url_for, jsonify
-from database import insert_owner_into_db, check_presence_in_db, verify_signin_with_db, retrieve_store_loc, add_store_loc
+from flask import Flask, render_template, request, redirect, url_for, jsonify, send_from_directory
+from database import (insert_owner_into_db, check_presence_in_db, verify_signin_with_db, retrieve_store_loc,
+                      add_store_loc, retrieve_employees_data, add_employee_in_db, remove_employee)
 
 current_directory = os.path.dirname(os.path.abspath(__file__))
 
@@ -63,49 +64,49 @@ def outlet(id, name):
 
 @app.route("/<id>/<name>/employee-data")
 def employee_data(id, name):
-    db = [
-        {
-            'id': 1,
-            'name': "kashyap",
-            'post': "receptionist",
-            'salary': 1200
-        },
-        {
-            'id': 2,
-            'name': "ashwin",
-            'post': "janitor",
-            'salary': 800
-        }
-    ]
+    err_message = request.args.get('message')
+    db = retrieve_employees_data(id)
 
     return render_template('employee_data.html',
                            details={'owner_id': id, 'name': name},
-                           emp_data=db)
+                           emp_data=db,
+                           message=err_message)
+
+
+@app.route("/<id>/<name>/issue_order/<product_img>")
+def get_image(id, name, product_img):
+    return send_from_directory('static/images/card_images', product_img)
 
 
 @app.route("/<id>/<name>/issue-order")
-def issue_order(id, name):
+def products_data(id, name):
     db = [
         {
             'order_id': 1,
             'products': [{
                              'prod_id': 1,
-                             'prod_name': "Shaving cream"
+                             'prod_name': "Shaving cream",
+                             'prod_price': 300,
+                             'prod_image': 'shaving_cream.jpg'
                          },
                          {
                              'prod_id': 2,
-                             'prod_name': "Detergent"
+                             'prod_name': "Detergent",
+                             'prod_price': 350,
+                             'prod_image': 'detergent.jpg'
                          },
                          {
                              'prod_id': 3,
-                             'prod_name': "Vegetable oil"
+                             'prod_name': "Vegetable oil",
+                             'prod_price': 200,
+                             'prod_image': 'vegetable_oil.jpg'
                          }]
         }
     ]
 
     return render_template('issue_order.html',
                            details={'owner_id': id, 'name': name},
-                           order_data=db)
+                           product_data=db)
 
 
 @app.route("/get_coordinates/<owner_id>")
@@ -144,6 +145,45 @@ def add_loc(id, name):
             return render_template('outlet.html',
                                    details={'owner_id': id, 'name': name},
                                    message="There was an error inserting the store location")
+
+
+@app.route("/<id>/<name>/add_employee", methods=['POST'])
+def add_employee(id, name):
+    data = request.form
+
+    emp_name = data.get('emp-name')
+    post = data.get('emp-post')
+    salary = data.get('emp-salary')
+
+    if not emp_name or not post or not salary:
+        return redirect(url_for('employee_data',
+                                id=id,
+                                name=name,
+                                message="Name/Post/Salary fields cannot be null"))
+
+    else:
+        status = add_employee_in_db(id, emp_name, post, salary)
+
+        if status:
+            return redirect(url_for('employee_data',
+                                    id=id,
+                                    name=name,
+                                    message=None))
+        else:
+            return redirect(url_for('employee_data',
+                                    id=id,
+                                    name=name,
+                                    message="There was an error inserting new employee details"))
+
+
+@app.route("/<id>/<name>/delete_employee/<emp_id>", methods=['POST'])
+def delete_employee(id, name, emp_id):
+    status = remove_employee(emp_id, id)
+
+    if status:
+        return jsonify({"status": "success"})
+    else:
+        return jsonify({"status": "failure"})
 
 
 if __name__ == "__main__":
