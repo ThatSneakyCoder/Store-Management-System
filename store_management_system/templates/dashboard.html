@@ -15,22 +15,7 @@
 
     <div class="d-flex" id="wrapper">
       <!-- sidebar start here-->
-
-      <div class="bg-dark" id="sidebar-wrapper">
-        <div class="list-group list-group-flush my-3">
-            <a href="/{{details['name']}}/dashboard" class="list-group-item list-group-item-action bg-transparent second-text active text-secondary"><i
-                    class="fas fa-tachometer-alt me-2"></i>Dashboard</a>
-            <a href="#" class="list-group-item list-group-item-action bg-transparent second-text fw-bold text-secondary"><i
-                    class="fas fa-project-diagram me-2"></i>Issue Orders</a>
-            <a href="#" class="list-group-item list-group-item-action bg-transparent second-text fw-bold text-secondary"><i
-                    class="fas fa-project-diagram me-2"></i>Employee Data</a>
-            <a href="#" class="list-group-item list-group-item-action bg-transparent second-text fw-bold text-secondary"><i
-                    class="fas fa-map-marker-alt me-2"></i>Outlet</a>
-            <a href="#" class="list-group-item list-group-item-action bg-transparent text-danger fw-bold"><i
-                    class="fas fa-power-off me-2"></i>Logout</a>
-        </div>
-    </div>
-
+      {% include 'sidebar.html' %}
       <!-- sidebar ends here -->
       <!-- Page Content -->
       <div id="page-content-wrapper">

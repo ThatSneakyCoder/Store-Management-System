@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en" class="h-100" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Data</title>
+    <link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/all.min.css') }}">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+</head>
+<body>
+    {% include 'navbar.html' %}
+    <div style="margin-top: 70px;"></div> 
+    <div class="d-flex" id="wrapper">
+    {% include 'sidebar.html' %}
+    <div id="page-content-wrapper">
+        <nav class="navbar navbar-expand-lg navbar-light bg-transparent py-4 px-4">
+            <div class="d-flex align-items-center">
+                <i class="fas fa-align-left primary-text fs-4 me-3" id="menu-toggle"></i>
+                <h2 class="fs-2 m-0">Issue a new order</h2>
+            </div>
+
+            <div class="navbar-collapse">
+                <div class="navbar-nav ms-auto mb-2 mb-lg-0">
+                    
+                        <a class="nav-link second-text fw-bold text-secondary" aria-expanded="false">
+                            <i class="fas fa-user me-2 text-secondary"></i>{{details['name']}}
+                        </a>
+                   
+                      </div>
+            </div>
+        </nav>
+    <h1>
+        {% for order in order_data %}
+        Order ID: {{ order['order_id'] }}
+        <br>
+        Products:
+        <ul>
+                {% for prod in order['products'] %}
+                <li>{{ prod['prod_id'] }} - {{ prod['prod_name'] }}</li>
+                {% endfor %}
+        </ul>
+        <br>
+        {% endfor %}
+    </h1>
+    </div>
+    </div>
+<script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js')  }}"></script>
+</body>
+</html>
+

@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en" class="h-100" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your outlets</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/leaflet.css') }}">
+    <link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/all.min.css') }}">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+</head>
+<body>
+    {% include 'navbar.html' %}
+    <div style="margin-top: 70px;"></div> 
+    <div class="d-flex" id="wrapper">
+    {% include 'sidebar.html' %}
+    <div id="page-content-wrapper">
+        <nav class="navbar navbar-expand-lg navbar-light bg-transparent py-4 px-4">
+            <div class="d-flex align-items-center">
+                <i class="fas fa-align-left primary-text fs-4 me-3" id="menu-toggle"></i>
+                <h2 class="fs-2 m-0">Your Outlets</h2>
+            </div>
+
+            <div>
+                <h1 class="fs-5 m-1 ms-4 mt-2" style="color: yellow;">Add location: </h1>
+            </div>
+            <form class="d-flex" role="search" action="/{{ details['owner_id'] }}/{{ details['name'] }}/add_loc" method="post">
+                <input class="form-control me-2" type="number" name="latitude" step="any" placeholder="Latitude" aria-label="Enter Latitude">
+                <input class="form-control me-2" type="number" name="longitude"step="any" placeholder="Longitude" aria-label="Enter Longitude">
+                <button class="btn btn-outline-success" type="submit">Add</button>
+            </form>
+
+            <div class="navbar-collapse">
+                <div class="navbar-nav ms-auto mb-2 mb-lg-0">
+                    
+                        <a class="nav-link second-text fw-bold text-secondary" aria-expanded="false">
+                            <i class="fas fa-user me-2 text-secondary"></i>{{details['name']}}
+                        </a>
+                   
+                      </div>
+            </div>
+        </nav>
+        <div id="map" style="height: 676px;"></div>
+    </div>
+    </div>
+    <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js')  }}"></script>
+    <script src="{{ url_for('static', filename='js/leaflet.js')  }}"></script>
+    <script>
+        var el = document.getElementById("wrapper");
+        var toggleButton = document.getElementById("menu-toggle");
+  
+        toggleButton.onclick = function () {
+            el.classList.toggle("toggled");
+        };
+    </script>
+    <script>
+        window.onload = function() {
+        const ownerID = "{{ details['owner_id'] }}";
+
+        fetch("/get_coordinates/" + ownerID)
+        .then(response => response.json())
+        .then(data => {
+        const owner_id = data.owner_id;
+        const coordinates = data.coordinates;
+
+        var map = L.map('map').setView([17.3850, 78.4867], 13);
+        let bounds = new L.LatLngBounds();
+
+        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+        }).addTo(map);
+
+        for (var i = 0; i < coordinates.length; i++) {
+            var marker = L.marker([coordinates[i].lat, coordinates[i].lng]).addTo(map);
+            bounds.extend(marker.getLatLng());
+        }
+
+        if (coordinates.length > 0) {
+            map.fitBounds(bounds);
+            map.setZoom(map.getZoom() - 1);
+        }
+    });
+}
+    </script>
+    {% if message %}
+    <script>alert("{{ message }}");</script>
+    {% endif %}
+</body>
+</html>

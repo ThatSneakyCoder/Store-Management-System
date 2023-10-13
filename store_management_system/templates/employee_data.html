@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en" class="h-100" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Data</title>
+    <link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/all.min.css') }}">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+</head>
+<body>
+    {% include 'navbar.html' %}
+    <div style="margin-top: 70px;"></div> 
+    <div class="d-flex" id="wrapper">
+    {% include 'sidebar.html' %}
+    <div id="page-content-wrapper">
+        <nav class="navbar navbar-expand-lg navbar-light bg-transparent py-4 px-4">
+            <div class="d-flex align-items-center">
+                <i class="fas fa-align-left primary-text fs-4 me-3" id="menu-toggle"></i>
+                <h2 class="fs-2 m-0">Employee Database</h2>
+            </div>
+
+            <div class="navbar-collapse">
+                <div class="navbar-nav ms-auto mb-2 mb-lg-0">
+                    
+                        <a class="nav-link second-text fw-bold text-secondary" aria-expanded="false">
+                            <i class="fas fa-user me-2 text-secondary"></i>{{details['name']}}
+                        </a>
+                   
+                      </div>
+            </div>
+        </nav>
+        <div class="container-fluid px-4">
+            <div class="row my-1">
+                <div style="display: flex; justify-content: flex-start;">
+                    <h3 class="fs-3 pt-1">Add Employee: </h3>
+                    <form class="d-flex m-1 mb-2" role="search" action="/{{ details['owner_id'] }}/{{ details['name'] }}/add_loc" method="post">
+                        <input class="form-control me-2" type="text" name="emp-name" placeholder="Employee Name" aria-label="Enter employee name">
+                        <input class="form-control me-2" type="text" name="emp-post" placeholder="Employee Post" aria-label="Enter employee post">
+                        <input class="form-control me-2" type="number" name="emp-salary" placeholder="Employee Salary" aria-label="Enter employee salary">
+                        
+                        <button class="btn btn-outline-success" type="submit">Add</button>
+                    </form>
+                </div>
+                <div class="col">
+                    <table class="table bg-white rounded shadow-sm  table-hover">
+                        <thead>
+                            <tr>
+                                <th scope="col" width="150">Employee ID</th>
+                                <th scope="col">Employee Name</th>
+                                <th scope="col">Post</th>
+                                <th scope="col">Salary (Annum)</th>
+                                <th scope="col" width="50">Actions</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            {% for emp in emp_data %}
+                            <tr>
+                                <th scope="row">{{ emp['id'] }}</th>
+                                <td>{{ emp['name'] }}</td>
+                                <td>{{ emp['post'] }}</td>
+                                <td>${{ emp['salary'] }}</td>
+                                <td>
+                                    <button type="button" class="btn btn-danger">Delete</button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+        
+    </div>
+    </div>
+<script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js')  }}"></script>
+</body>
+</html>
