@@ -32,20 +32,62 @@
             </div>
         </nav>
         <div class="container-fluid px-4">
-            <div class="row row-cols-1 row-cols-md-4 g-4">
-                {% include 'product_card.html' %}
-                {% include 'product_card.html' %}
-                {% include 'product_card.html' %}
-                {% include 'product_card.html' %}
-                {% include 'product_card.html' %}
-                {% include 'product_card.html' %}
-                {% include 'product_card.html' %}
-                {% include 'product_card.html' %}
+        <div class="row my-1">
+            <div style="display: flex; justify-content: flex-start;">
+                <h3 class="fs-3 pt-1" style="color: yellow;">Add New Product: </h3>
+                    <form class="d-flex m-1 mb-2" role="search" action="/{{ details['owner_id'] }}/{{ details['name'] }}/add-product" method="post">
+                    <input class="form-control me-2" type="text" name="prod-name" placeholder="Product Name" aria-label="Enter product name">
+                    <input class="form-control me-2" type="number" name="prod-price" placeholder="Product Price" aria-label="Enter product price">
+                    <input class="form-control me-2" type="number" name="prod-quantity" placeholder="Product Quantity" aria-label="Enter product quantity">
+                    <input class="form-control me-2" type="text" name="prod-img" placeholder="Product Image Name" aria-label="Enter product img">
+                
+                    <button class="btn btn-outline-success" type="submit">Add</button>
+                    </form>
             </div>
+        
+            <div class="row row-cols-1 row-cols-md-4 g-4">
+                {% for product in product_data %}
+                    {% include 'product_card.html' %}
+                {% endfor %}
+            </div>
+        
+        </div>
+        <h2 class="fs-2 m-0">Enter the customer details:</h2>
+        <!-- <form action=""></form> -->
+        <button type="button" id="issue-order-button" class="btn btn-primary btn-lg mt-4 mb-3">Issue Order</button>
         </div>
     </div>
     </div>
 <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js')  }}"></script>
+<script>
+    $(document).ready(function(){
+  $("#issue-order-button").click(function(){
+    let quantities = {};
+    $(".quantity-input").each(function(){
+      let prod_id = $(this).data("prod-id");
+      let quantity = $(this).val();
+      if (quantity) {
+        quantities[prod_id] = quantity;
+      }
+    });
+    
+    let owner_id = "{{ details['owner_id'] }}";
+    let owner_name = "{{ details['name'] }}";
+
+    $.ajax({
+      url: `/${owner_id}/${owner_name}/place_order`,
+      type: "POST",
+      data: JSON.stringify(quantities),
+      contentType: "application/json",
+      success: function(response){
+        if(response.status === "success"){
+          console.log("SUCCESSSSSSSSSSSSSSSSS!!!!!!!")
+        }
+      }
+    });
+  });
+});
+</script>
 </body>
 </html>
 

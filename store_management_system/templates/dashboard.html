@@ -37,7 +37,7 @@
         </nav>
 
         <div class="container-fluid px-4">
-            <div class="row g-3 my-2">
+            <div class="row g-3 my-2 justify-content-between">
                 <div class="col-md-3">
                     <div class="p-3 bg-dark shadow-sm d-flex justify-content-around align-items-center rounded">
                         <div>
@@ -68,19 +68,20 @@
                         <i class="fas fa-truck fs-1 primary-text border rounded-full secondary-bg p-3"></i>
                     </div>
                 </div>
-
-                <div class="col-md-3">
-                    <div class="p-3 bg-dark shadow-sm d-flex justify-content-around align-items-center rounded">
-                        <div>
-                            <h3 class="fs-2">Rs.33445</h3>
-                            <p class="fs-5">Revenue</p>
-                        </div>
-                        <i class="fas fa-chart-line fs-1 primary-text border rounded-full secondary-bg p-3"></i>
-                    </div>
-                </div>
             </div>
 
-            <div class="row my-5">
+            <h3 class="fs-4 my-3">Analytics Graphs:</h3>
+            <div style="display: flex; justify-content: space-around;">
+                <div style="flex: 1;">
+                    <canvas id="chart1"></canvas>
+                </div>
+                <div style="flex: 1;">
+                    <canvas id="chart2"></canvas>
+                </div>
+            </div>
+            
+
+            <div class="row my-2">
                 <h3 class="fs-4 mb-3">Recent Orders</h3>
                 <div class="col">
                     <table class="table bg-white rounded shadow-sm  table-hover">
@@ -112,67 +113,6 @@
                                 <td>Kenny</td>
                                 <td>$750</td>
                             </tr>
-                            <tr>
-                                <th scope="row">3</th>
-                                <td>Cell Phone</td>
-                                <td>Jenny</td>
-                                <td>$600</td>
-                            </tr>
-                            <tr>
-                                <th scope="row">4</th>
-                                <td>Fridge</td>
-                                <td>Killy</td>
-                                <td>$300</td>
-                            </tr>
-                            <tr>
-                                <th scope="row">5</th>
-                                <td>Books</td>
-                                <td>Filly</td>
-                                <td>$120</td>
-                            </tr>
-                            <tr>
-                                <th scope="row">6</th>
-                                <td>Gold</td>
-                                <td>Bumbo</td>
-                                <td>$1800</td>
-                            </tr>
-                            <tr>
-                                <th scope="row">7</th>
-                                <td>Pen</td>
-                                <td>Bilbo</td>
-                                <td>$75</td>
-                            </tr>
-                            <tr>
-                                <th scope="row">8</th>
-                                <td>Notebook</td>
-                                <td>Frodo</td>
-                                <td>$36</td>
-                            </tr>
-                            <tr>
-                                <th scope="row">9</th>
-                                <td>Dress</td>
-                                <td>Kimo</td>
-                                <td>$255</td>
-                            </tr>
-                            <tr>
-                                <th scope="row">10</th>
-                                <td>Paint</td>
-                                <td>Zico</td>
-                                <td>$434</td>
-                            </tr>
-                            <tr>
-                                <th scope="row">11</th>
-                                <td>Carpet</td>
-                                <td>Jeco</td>
-                                <td>$1236</td>
-                            </tr>
-                            <tr>
-                                <th scope="row">12</th>
-                                <td>Food</td>
-                                <td>Haso</td>
-                                <td>$422</td>
-                            </tr>
-                            
                         </tbody>
                     </table>
                 </div>
@@ -184,7 +124,90 @@
 <!-- /#page-content-wrapper -->
 </div>
     </div>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js')  }}"></script>
+    <script>
+        const ctx1 = document.getElementById('chart1');
+        
+        const parsedLabels1 = JSON.parse('{{ graph_val["x_values_g1"] | tojson | safe }}');
+        const parsedData1 = JSON.parse('{{ graph_val["y_values_g1"] | tojson | safe }}');
+
+new Chart(ctx1, {
+  type: 'bar',
+  data: {
+    labels: parsedLabels1,
+    datasets: [{
+      label: 'Quantity of Product in Stock',
+      data: parsedData1,
+      backgroundColor: [
+          'rgba(255, 26, 104, 0.2)',
+          'rgba(54, 162, 235, 0.2)',
+          'rgba(255, 206, 86, 0.2)',
+          'rgba(75, 192, 192, 0.2)',
+          'rgba(153, 102, 255, 0.2)',
+          'rgba(255, 159, 64, 0.2)',
+          'rgba(0, 0, 0, 0.2)'
+        ],
+        borderColor: [
+          'rgba(255, 26, 104, 1)',
+          'rgba(54, 162, 235, 1)',
+          'rgba(255, 206, 86, 1)',
+          'rgba(75, 192, 192, 1)',
+          'rgba(153, 102, 255, 1)',
+          'rgba(255, 159, 64, 1)',
+          'rgba(0, 0, 0, 1)'
+        ],
+      borderWidth: 1
+    }]
+  },
+  options: {
+    scales: {
+      y: {
+        beginAtZero: true
+      }
+    }
+  }
+});
+
+const ctx2 = document.getElementById('chart2');
+
+new Chart(ctx2, {
+  type: 'bar',
+  data: {
+    labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
+    datasets: [{
+      label: 'Product with most revenue',
+      data: [12, 19, 3, 5, 2, 3],
+      backgroundColor: [
+          'rgba(255, 26, 104, 0.2)',
+          'rgba(54, 162, 235, 0.2)',
+          'rgba(255, 206, 86, 0.2)',
+          'rgba(75, 192, 192, 0.2)',
+          'rgba(153, 102, 255, 0.2)',
+          'rgba(255, 159, 64, 0.2)',
+          'rgba(0, 0, 0, 0.2)'
+        ],
+        borderColor: [
+          'rgba(255, 26, 104, 1)',
+          'rgba(54, 162, 235, 1)',
+          'rgba(255, 206, 86, 1)',
+          'rgba(75, 192, 192, 1)',
+          'rgba(153, 102, 255, 1)',
+          'rgba(255, 159, 64, 1)',
+          'rgba(0, 0, 0, 1)'
+        ],
+      borderWidth: 1
+    }]
+  },
+  options: {
+    scales: {
+      y: {
+        beginAtZero: true
+      }
+    }
+  }
+});
+    </script>
     <script>
       var el = document.getElementById("wrapper");
       var toggleButton = document.getElementById("menu-toggle");

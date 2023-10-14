@@ -1,9 +1,42 @@
+<style>
+  .card-img-top {
+    width: 100%;  /* Width of the image will be 100% of the card width */
+    height: 300px;  /* You can set this to whatever you want */
+    object-fit: cover;  /* This will cover the area and clip the image if needed */
+  }
+</style>
+
 <div class="col">
     <div class="card h-100">
       <img src="{{ url_for('get_image', id=details['owner_id'], name=details['name'], product_img=product['prod_image']) }}" class="card-img-top" alt="Product Image">
       <div class="card-body">
-        <h5 class="card-title">Card title</h5>
-        <p class="card-text">This is a longer card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.</p>
+        <h5 class="card-title">{{ product['prod_name'] }}</h5>
+        <p class="card-text">Price: Rs.{{ product['prod_price'] }}</p>
+        <div class="d-flex">
+          <input type="number" data-prod-id="{{ product['prod_id'] }}" class="quantity-input ml-2"  placeholder="Quantity">
+        </div>
+          <button type="button" class="btn btn-danger mt-1 delete-button" data-prod-id="{{ product['prod_id'] }}">Delete</button>
       </div>
     </div>
 </div>
+<script src="{{ url_for('static', filename='js/jquery-3.6.0.min.js')  }}"></script>
+<script>
+  $(document).ready(function(){
+    $(".delete-button").click(function(){
+        var prod_id = $(this).data("prod-id");
+        var owner_id = "{{ details['owner_id'] }}";
+        var owner_name = "{{ details['name'] }}";
+        var card = $(this).closest(".card");
+
+        $.ajax({
+            url: `/${owner_id}/${owner_name}/delete_product/${prod_id}`,
+            type: "POST",
+            success: function(response){
+                if(response.status === "success"){
+                  card.remove();
+                }
+            }
+        });
+    });
+});
+</script>
