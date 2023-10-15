@@ -1,4 +1,7 @@
 import os
+from datetime import datetime
+import random
+
 import bcrypt
 
 from dotenv import load_dotenv
@@ -20,6 +23,8 @@ class Owners(Base):
     password = Column("password", String(100), nullable=False)
     outlets = relationship('Outlets', back_populates='owner')
     employee = relationship('Employees', back_populates='owner')
+    orders = relationship('Orders', back_populates='owner')
+    customers = relationship('Customers', back_populates='owner')
 
     def __init__(self, name, email, password):
         self.name = name
@@ -66,9 +71,53 @@ class Products(Base):
     prod_price = Column(Integer, nullable=False)
     prod_quantity = Column(Integer, nullable=False)
     prod_image = Column(String(500), nullable=False)
+    orders = relationship('Orders', back_populates='product')
 
     def __repr__(self):
         return f"Products(owner_id={self.owner_id}, prod_id={self.prod_id}, prod_name={self.prod_name}, prod_price={self.prod_price}, prod_quantity={self.prod_quantity}, prod_image={self.prod_image})"
+
+
+class Orders(Base):
+    __tablename__ = "orders"
+
+    order_val = Column(Integer, primary_key=True, autoincrement=True)
+    order_id = Column(Integer, nullable=False)
+    prod_id = Column(Integer, ForeignKey('products.prod_id'), nullable=False)
+    owner_id = Column(Integer, ForeignKey('owners.id'), nullable=False)
+    sold_prod_quantity = Column(Integer, nullable=False)
+
+    # Relationships
+    product = relationship('Products', back_populates='orders')
+    owner = relationship('Owners', back_populates='orders')
+
+    def __repr__(self):
+        return (f"Orders(order_id={self.order_id}, "
+                f"prod_id={self.prod_id}, "
+                f"owner_id={self.owner_id}, "
+                f"sold_prod_quantity={self.sold_prod_quantity}")
+
+
+class Customers(Base):
+    __tablename__ = "customers"
+
+    owner_id = Column(Integer, ForeignKey('owners.id'))
+    customer_id = Column(Integer, primary_key=True, autoincrement=True)
+    customer_name = Column(String(100), nullable=False)
+    customer_email = Column(String(100), nullable=False)
+    customer_address = Column(String(500), nullable=False)
+    customer_city = Column(String(100), nullable=False)
+    customer_state = Column(String(100), nullable=False)
+    customer_zip = Column(Integer, nullable=False)
+    owner = relationship('Owners', back_populates='customers')
+
+    def __repr__(self):
+        return (f"Customers(customer_id={self.customer_id}, "
+                f"customer_name={self.customer_name}, "
+                f"customer_email={self.customer_email}, "
+                f"customer_address={self.customer_address}, "
+                f"customer_city={self.customer_city}, "
+                f"customer_state={self.customer_state}, "
+                f"customer_zip={self.customer_zip})")
 
 
 engine = create_engine(os.getenv("DB_STRING"), echo=True)
@@ -77,6 +126,107 @@ Session = sessionmaker(bind=engine)
 session = Session()  # we can do all sort of things with this now
 Base.metadata.create_all(bind=engine)  # takes all the classes and creates their database
 
+
+def get_sales_report(owner_id):
+    result = []
+
+    query_orders = session.query(Orders.order_id).filter(Orders.owner_id == owner_id).distinct().all()
+
+    for index, order in enumerate(query_orders, start=1):
+
+        query_products = session.query(Orders.prod_id).filter(Orders.order_id == order.order_id).all()
+        product_list = [prod.prod_id for prod in query_products]
+
+        total_sales = 0
+
+        for prod in product_list:
+            query_price = session.query(Products.prod_price).filter(Products.prod_id == prod).one()
+            total_sales += query_price[0]
+
+        result.append({
+            'order_number': index,
+            'order_id': order.order_id,
+            'product_list': product_list,
+            'total_sales': total_sales,
+        })
+
+    return result
+
+
+def add_order_in_db(prod_owner_id, order_details, customer_details):
+    try:
+        status = ""
+        order_id = int(datetime.now().strftime('%H%M%S') + str(random.randint(0, 10)))
+
+        for order in order_details:
+            # inserting into the db
+            new_order = Orders(order_id=order_id,
+                               prod_id=order['prod_id'],
+                               owner_id=prod_owner_id,
+                               sold_prod_quantity=order['prod_quantity'])
+
+            # reducing quantity from the available stock
+            product = session.query(Products).filter_by(prod_id=order['prod_id']).first()
+
+            if product and product.prod_quantity >= int(order['prod_quantity']):
+                product.prod_quantity -= int(order['prod_quantity'])
+            else:
+                product.prod_quantity += 100
+                product.prod_quantity -= int(order['prod_quantity'])
+                status += "stock"
+
+            session.add(new_order)
+
+        new_customer = Customers(
+            owner_id=prod_owner_id,
+            customer_name=customer_details['name'],
+            customer_email=customer_details['email'],
+            customer_address=customer_details['address'],
+            customer_city=customer_details['city'],
+            customer_state=customer_details['state'],
+            customer_zip=customer_details['zip']
+        )
+
+        session.add(new_customer)
+
+        session.commit()
+        if status:
+            return status
+        else:
+            return "done"
+    except IntegrityError:
+        session.rollback()
+        print("\033[91mIntegrityError: Error while inserting new order details\033[0m")
+        return "failed"
+    except SQLAlchemyError:
+        session.rollback()
+        print("\033[91mSQLAlchemyError: Could not insert order details\033[0m")
+        return "failed"
+
+
+def get_card_data(owner_id):
+    result = {}
+
+    count_products = session.query(Products).filter(Products.owner_id == owner_id).count()
+    count_customers = session.query(Customers).filter(Customers.owner_id == owner_id).count()
+    query_orders = session.query(Orders.order_id).filter(Orders.owner_id == owner_id).distinct().all()
+
+    total_sales = 0
+
+    for index, order in enumerate(query_orders, start=1):
+
+        query_products = session.query(Orders.prod_id).filter(Orders.order_id == order.order_id).all()
+        product_list = [prod.prod_id for prod in query_products]
+
+        for prod in product_list:
+            query_price = session.query(Products.prod_price).filter(Products.prod_id == prod).one()
+            total_sales += query_price[0]
+
+    return {
+        'count_products': count_products,
+        'count_customers': count_customers,
+        'total_sales': total_sales
+    }
 
 def add_product_in_db(prod_owner_id, prod_name, prod_price, prod_quantity, prod_img):
     try:
@@ -276,7 +426,3 @@ def get_items_in_stock(owner_id):
         list_quantity_of_items.append(prod_quantity[0])
 
     return list_items_in_stock, list_quantity_of_items
-
-
-# def get_items_with_most_sales(owner_id):
-

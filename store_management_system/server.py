@@ -2,7 +2,8 @@ import os
 from flask import Flask, render_template, request, redirect, url_for, jsonify, send_from_directory
 from database import (insert_owner_into_db, check_presence_in_db, verify_signin_with_db, retrieve_store_loc,
                       add_store_loc, retrieve_employees_data, add_employee_in_db, remove_employee, retrieve_products,
-                      add_product_in_db, remove_product, get_items_in_stock)
+                      add_product_in_db, remove_product, get_items_in_stock, add_order_in_db, get_sales_report,
+                      get_card_data)
 
 current_directory = os.path.dirname(os.path.abspath(__file__))
 
@@ -40,7 +41,9 @@ def verify_signin():
 @app.route("/<id>/<name>/dashboard")
 def user_dashboard(id, name):
     x_values_graph1, y_values_graph1 = get_items_in_stock(id)
-    # x_values_graph2, y_values_graph2 = get_items_with_most_sales(id)
+    sales_table_values = get_sales_report(id)
+    card_datas = get_card_data(id)
+
     return render_template('dashboard.html',
                            details={
                                'owner_id': id,
@@ -49,7 +52,9 @@ def user_dashboard(id, name):
                            graph_val={
                                'x_values_g1': x_values_graph1,
                                'y_values_g1': y_values_graph1
-                           })
+                           },
+                           sales_report=sales_table_values,
+                           card_data=card_datas)
 
 
 @app.route("/signup/successful", methods=['POST'])
@@ -103,13 +108,25 @@ def products_data(id, name):
 @app.route("/<id>/<name>/place_order", methods=['POST'])
 def place_order(id, name):
     data = request.json
-    print(data)
-    print("------------------------")
-    for val in data:
-        print(val)
-        print(data[val])
-    print("------------------------")
-    return jsonify({"status": "success"})
+    order_details = []
+    data_val = data['quantities']
+
+    for key in data_val:
+        order_details.append({
+            'prod_id': key,
+            'prod_quantity': data_val[key]
+        })
+
+    customer_detail = data['customerDetails']
+
+    status = add_order_in_db(id, order_details, customer_detail)
+
+    if status == "done":
+        return jsonify({"status": "success"})
+    elif status == "stock":
+        return jsonify({"status": "stock"})
+    else:
+        return jsonify({"status": "failed"})
 
 
 @app.route("/<id>/<name>/add-product", methods=['POST'])

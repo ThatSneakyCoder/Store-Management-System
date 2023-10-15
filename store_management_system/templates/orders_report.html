@@ -1,0 +1,12 @@
+<tr>
+    <th scope="row">{{ detail['order_number'] }}</th>
+    <td>{{ detail['order_id'] }}</td>
+    <td>
+        <ol type="I">
+        {% for prod in detail['product_list'] %}
+            <li>{{ prod }}</li>
+        {% endfor %}
+        </ol>
+    </td>
+    <td>{{ detail['total_sales'] }}</td>
+</tr>

@@ -53,8 +53,71 @@
         
         </div>
         <h2 class="fs-2 m-0">Enter the customer details:</h2>
-        <!-- <form action=""></form> -->
-        <button type="button" id="issue-order-button" class="btn btn-primary btn-lg mt-4 mb-3">Issue Order</button>
+
+
+        <!-- customer form start here -->
+        <form class="row g-3 mt-3">
+          <div class="col-md-6">
+            <label for="inputName" class="form-label">Full Name</label>
+            <input type="text" class="form-control" id="inputName">
+          </div>
+          <div class="col-md-6">
+            <label for="inputEmail4" class="form-label">Email</label>
+            <input type="email" class="form-control" id="inputEmail4">
+          </div>
+          <div class="col-12">
+            <label for="inputAddress" class="form-label">Address Line</label>
+            <input type="text" class="form-control" id="inputAddress" placeholder="1234 Main St">
+          </div>
+          <div class="col-md-6">
+            <label for="inputCity" class="form-label">City</label>
+            <input type="text" class="form-control" id="inputCity">
+          </div>
+          <div class="col-md-4">
+            <label for="inputState" class="form-label">State</label>
+            <select id="inputState" class="form-select">
+                <option selected>Choose...</option>
+                <option>Andhra Pradesh</option>
+                <option>Arunachal Pradesh</option>
+                <option>Assam</option>
+                <option>Bihar</option>
+                <option>Chhattisgarh</option>
+                <option>Goa</option>
+                <option>Gujarat</option>
+                <option>Haryana</option>
+                <option>Himachal Pradesh</option>
+                <option>Jharkhand</option>
+                <option>Karnataka</option>
+                <option>Kerala</option>
+                <option>Madhya Pradesh</option>
+                <option>Maharashtra</option>
+                <option>Manipur</option>
+                <option>Meghalaya</option>
+                <option>Mizoram</option>
+                <option>Nagaland</option>
+                <option>Odisha</option>
+                <option>Punjab</option>
+                <option>Rajasthan</option>
+                <option>Sikkim</option>
+                <option>Tamil Nadu</option>
+                <option>Telangana</option>
+                <option>Tripura</option>
+                <option>Uttar Pradesh</option>
+                <option>Uttarakhand</option>
+                <option>West Bengal</option>
+            </select>
+
+          </div>
+          <div class="col-md-2">
+            <label for="inputZip" class="form-label">Zip</label>
+            <input type="text" class="form-control" id="inputZip">
+          </div>
+          <div class="col-12">
+            <button type="button" id="issue-order-button" class="btn btn-primary btn-lg mt-1 mb-3">Issue Order</button>
+          </div>
+
+          <!-- customer form ends here -->
+        </form>
         </div>
     </div>
     </div>
@@ -63,6 +126,7 @@
     $(document).ready(function(){
   $("#issue-order-button").click(function(){
     let quantities = {};
+    let customer_details = {};
     $(".quantity-input").each(function(){
       let prod_id = $(this).data("prod-id");
       let quantity = $(this).val();
@@ -70,6 +134,26 @@
         quantities[prod_id] = quantity;
       }
     });
+
+    let customer_name = $("#inputName").val();
+    let customer_email = $("#inputEmail4").val();
+    let customer_address = $("#inputAddress").val();
+    let customer_city = $("#inputCity").val();
+    let customer_state = $("#inputState").val();
+    let customer_zip = $("#inputZip").val();
+
+    let payload = {
+      quantities: quantities,
+      customerDetails: {
+        name: customer_name,
+        email: customer_email,
+        address: customer_address,
+        city: customer_city,
+        state: customer_state,
+        zip: customer_zip
+      }
+    };
+
     
     let owner_id = "{{ details['owner_id'] }}";
     let owner_name = "{{ details['name'] }}";
@@ -77,11 +161,19 @@
     $.ajax({
       url: `/${owner_id}/${owner_name}/place_order`,
       type: "POST",
-      data: JSON.stringify(quantities),
+      data: JSON.stringify(payload),
       contentType: "application/json",
       success: function(response){
         if(response.status === "success"){
-          console.log("SUCCESSSSSSSSSSSSSSSSS!!!!!!!")
+          alert("Order successfully placed.");
+          // Reload the page after 2 seconds
+          setTimeout(function(){ location.reload(); }, 1);
+        } else if (response.status === "stock") {
+          alert("Something ran out of stock! Restocked by 100 units and order placed. Check dashboard for new stock levels")
+          setTimeout(function(){ location.reload(); }, 1);
+        } else if (response.status === "failed") {
+          alert("Something failed at the server/browser")
+          setTimeout(function(){ location.reload(); }, 1);
         }
       }
     });

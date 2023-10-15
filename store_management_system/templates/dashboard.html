@@ -27,12 +27,10 @@
 
             <div class="navbar-collapse">
                 <div class="navbar-nav ms-auto mb-2 mb-lg-0">
-                    
                         <a class="nav-link second-text fw-bold text-secondary" aria-expanded="false">
                             <i class="fas fa-user me-2 text-secondary"></i>{{details['name']}}
-                        </a>
-                   
-                      </div>
+                        </a>   
+                </div>
             </div>
         </nav>
 
@@ -41,7 +39,7 @@
                 <div class="col-md-3">
                     <div class="p-3 bg-dark shadow-sm d-flex justify-content-around align-items-center rounded">
                         <div>
-                            <h3 class="fs-2">720</h3>
+                            <h3 class="fs-2">{{ card_data['count_products'] }}</h3>
                             <p class="fs-5">Products</p>
                         </div>
                         <i class="fas fa-gift fs-1 primary-text border rounded-full secondary-bg p-3"></i>
@@ -51,7 +49,7 @@
                 <div class="col-md-3">
                     <div class="p-3 bg-dark shadow-sm d-flex justify-content-around align-items-center rounded">
                         <div>
-                            <h3 class="fs-2">4920</h3>
+                            <h3 class="fs-2">{{ card_data['count_customers'] }}</h3>
                             <p class="fs-5">Customers</p>
                         </div>
                         <i
@@ -62,7 +60,7 @@
                 <div class="col-md-3">
                     <div class="p-3 bg-dark shadow-sm d-flex justify-content-around align-items-center rounded">
                         <div>
-                            <h3 class="fs-2">Rs.33899</h3>
+                            <h3 class="fs-2">Rs.{{ card_data['total_sales'] }}</h3>
                             <p class="fs-5">Total sales</p>
                         </div>
                         <i class="fas fa-truck fs-1 primary-text border rounded-full secondary-bg p-3"></i>
@@ -75,9 +73,6 @@
                 <div style="flex: 1;">
                     <canvas id="chart1"></canvas>
                 </div>
-                <div style="flex: 1;">
-                    <canvas id="chart2"></canvas>
-                </div>
             </div>
             
 
@@ -87,32 +82,16 @@
                     <table class="table bg-white rounded shadow-sm  table-hover">
                         <thead>
                             <tr>
-                                <th scope="col" width="50">#</th>
-                                <th scope="col">Product</th>
-                                <th scope="col">Customer</th>
-                                <th scope="col">Price</th>
+                                <th scope="col" width="100">Order No.</th>
+                                <th>Order ID</th>
+                                <th scope="col">Product ID</th>
+                                <th scope="col">Total Sales</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <th scope="row">1</th>
-                                <td>Television
-                                  <br>
-                                  surf
-                                  <br>
-                                  mops
-                                  <br>
-                                  calender
-                                </td>
-                                <td>Jonny</td>
-                                <td>$1200</td>
-                            </tr>
-                            <tr>
-                                <th scope="row">2</th>
-                                <td>Laptop</td>
-                                <td>Kenny</td>
-                                <td>$750</td>
-                            </tr>
+                          {% for detail in sales_report %}
+                            {% include 'orders_report.html' %}
+                          {% endfor %}
                         </tbody>
                     </table>
                 </div>
@@ -139,45 +118,6 @@ new Chart(ctx1, {
     datasets: [{
       label: 'Quantity of Product in Stock',
       data: parsedData1,
-      backgroundColor: [
-          'rgba(255, 26, 104, 0.2)',
-          'rgba(54, 162, 235, 0.2)',
-          'rgba(255, 206, 86, 0.2)',
-          'rgba(75, 192, 192, 0.2)',
-          'rgba(153, 102, 255, 0.2)',
-          'rgba(255, 159, 64, 0.2)',
-          'rgba(0, 0, 0, 0.2)'
-        ],
-        borderColor: [
-          'rgba(255, 26, 104, 1)',
-          'rgba(54, 162, 235, 1)',
-          'rgba(255, 206, 86, 1)',
-          'rgba(75, 192, 192, 1)',
-          'rgba(153, 102, 255, 1)',
-          'rgba(255, 159, 64, 1)',
-          'rgba(0, 0, 0, 1)'
-        ],
-      borderWidth: 1
-    }]
-  },
-  options: {
-    scales: {
-      y: {
-        beginAtZero: true
-      }
-    }
-  }
-});
-
-const ctx2 = document.getElementById('chart2');
-
-new Chart(ctx2, {
-  type: 'bar',
-  data: {
-    labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
-    datasets: [{
-      label: 'Product with most revenue',
-      data: [12, 19, 3, 5, 2, 3],
       backgroundColor: [
           'rgba(255, 26, 104, 0.2)',
           'rgba(54, 162, 235, 0.2)',
