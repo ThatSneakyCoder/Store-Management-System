@@ -60,6 +60,46 @@ Note: create a `.env` file with the `DB_STRING` to connect to your own database
 python server.py
 ```
 
+### To run the application using Docker
+
+Save the following file locally:
+```yaml
+version: '3'
+services:
+  # Define the app service
+  app:
+    image: shubh220922/my-store-app
+    ports:
+      - "5000:5000"  
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DB_HOST: db  
+      DB_USER: user  
+      DB_PASSWORD: user_password  
+      DB_NAME: store_db  
+  
+  # Define the db service
+  db:
+    image: mysql:8.0.34
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_DATABASE: store_db
+      MYSQL_USER: user
+      MYSQL_PASSWORD: user_password
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+```
+
+In the same directory run the following command and the website will run through docker:
+```commandline
+sudo docker compose up
+```
+
 # Database Schema
 
 ![img.png](img.png)
