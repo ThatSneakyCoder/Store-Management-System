@@ -30,9 +30,10 @@ def sign_in():
 
 @app.route("/verify_signin", methods=['POST'])
 def verify_signin():
-    data = request.form
-    user_id, user_name = verify_signin_with_db(data)
-    if user_id is not None:
+    data = request.form 
+    result = verify_signin_with_db(data)
+    if result is not None:
+        user_id, user_name = result
         return redirect(url_for('user_dashboard', id=user_id, name=user_name))
     else:
         return render_template('user_does_not_exist.html')
@@ -247,4 +248,5 @@ def delete_product(id, name, prod_id):
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=5000, debug=True)
+

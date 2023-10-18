@@ -119,8 +119,14 @@ class Customers(Base):
                 f"customer_state={self.customer_state}, "
                 f"customer_zip={self.customer_zip})")
 
+db_user = os.getenv('DB_USER')
+db_password = os.getenv('DB_PASSWORD')
+db_host = os.getenv('DB_HOST', 'localhost')
+db_name = os.getenv('DB_NAME', 'default_db_name')
 
-engine = create_engine(os.getenv("DB_STRING"), echo=True)
+db_string = f"mysql+pymysql://{db_user}:{db_password}@{db_host}/{db_name}"
+
+engine = create_engine(db_string, echo=True)
 
 Session = sessionmaker(bind=engine)
 session = Session()  # we can do all sort of things with this now

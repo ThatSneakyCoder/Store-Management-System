@@ -84,5 +84,5 @@ Sign In:
 ### 5. Employee management feature
 ![img_6.png](img_6.png)
 
-and more......
+
 
